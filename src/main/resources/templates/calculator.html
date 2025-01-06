@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-800">
+<div class="min-h-screen flex items-center justify-center">
+    <div class="bg-white rounded-xl shadow-lg w-96 p-6">
+        <h1 class="text-2xl font-semibold text-center mb-4">Calculatrice</h1>
+
+        <!-- Chargement des plugins -->
+        <div class="mb-6">
+            <label for="pluginSelect" class="block text-sm font-medium mb-1">Sélectionner un plugin</label>
+            <select id="pluginSelect" class="w-full border rounded-lg p-2 bg-gray-50">
+                <option value="" selected disabled>Choisir un plugin...</option>
+                <option th:each="plugin : ${plugins}" th:value="${plugin}" th:text="${plugin}"></option>
+            </select>
+            <button onclick="loadSelectedPlugin()" class="mt-4 w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg">
+                Charger le plugin
+            </button>
+        </div>
+
+        <!-- Affichage et calculatrice -->
+        <div class="mb-4">
+            <input id="display" readonly class="w-full text-right text-2xl p-4 bg-gray-50 border rounded-lg" placeholder="0">
+        </div>
+
+        <!-- Boutons numériques -->
+        <div class="grid grid-cols-4 gap-2">
+            <!-- Chiffres -->
+            <button onclick="appendToDisplay('1')" class="bg-gray-200 hover:bg-gray-300 p-4 rounded-lg text-xl">1</button>
+            <button onclick="appendToDisplay('2')" class="bg-gray-200 hover:bg-gray-300 p-4 rounded-lg text-xl">2</button>
+            <button onclick="appendToDisplay('3')" class="bg-gray-200 hover:bg-gray-300 p-4 rounded-lg text-xl">3</button>
+            <button onclick="appendToDisplay('4')" class="bg-gray-200 hover:bg-gray-300 p-4 rounded-lg text-xl">4</button>
+            <button onclick="appendToDisplay('5')" class="bg-gray-200 hover:bg-gray-300 p-4 rounded-lg text-xl">5</button>
+            <button onclick="appendToDisplay('6')" class="bg-gray-200 hover:bg-gray-300 p-4 rounded-lg text-xl">6</button>
+            <button onclick="appendToDisplay('7')" class="bg-gray-200 hover:bg-gray-300 p-4 rounded-lg text-xl">7</button>
+            <button onclick="appendToDisplay('8')" class="bg-gray-200 hover:bg-gray-300 p-4 rounded-lg text-xl">8</button>
+            <button onclick="appendToDisplay('9')" class="bg-gray-200 hover:bg-gray-300 p-4 rounded-lg text-xl">9</button>
+            <!-- 0 et . -->
+            <button onclick="appendToDisplay('0')" class="col-span-2 bg-gray-200 hover:bg-gray-300 p-4 rounded-lg text-xl">0</button>
+            <button onclick="appendToDisplay('.')" class="bg-gray-200 hover:bg-gray-300 p-4 rounded-lg text-xl">.</button>
+        </div>
+
+        <!-- Opérations spéciales -->
+        <div class="grid grid-cols-2 gap-2 mt-4">
+            <button onclick="evaluateExpression()" class="bg-green-500 hover:bg-green-600 text-white p-4 rounded-lg text-xl">=</button>
+            <button onclick="clearDisplay()" class="bg-red-500 hover:bg-red-600 text-white p-4 rounded-lg text-xl">C</button>
+        </div>
+
+        <!-- Boutons dynamiques pour les plugins -->
+        <div id="operatorButtons" class="mt-4 grid grid-cols-4 gap-2"></div>
+    </div>
+</div>
+
+<script>
+    // Variable globale pour l'expression
+    let expression = '';
+    const display = document.getElementById('display');
+
+    // Fonction pour ajouter des valeurs à l'affichage
+    function appendToDisplay(value) {
+        expression += value;
+        display.value = expression;
+    }
+
+    // Fonction pour évaluer l'expression
+    function evaluateExpression() {
+        console.log("expression == ", expression);
+        fetch('/evaluate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `expression=${encodeURIComponent(expression)}`
+        }).then(response => response.text())
+            .then(result => {
+                if (!isNaN(result)) {
+                    display.value = result;
+                    expression = result; // Mise à jour de l'expression pour continuer les calculs
+                } else {
+                    alert("Erreur d'évaluation : " + result);
+                }
+            });
+    }
+
+    // Fonction pour réinitialiser l'affichage
+    function clearDisplay() {
+        expression = '';
+        display.value = '';
+    }
+
+    // Fonction pour charger un plugin sélectionné
+    function loadSelectedPlugin() {
+        const pluginName = document.getElementById('pluginSelect').value;
+        if (!pluginName) {
+            alert("Veuillez sélectionner un plugin !");
+            return;
+        }
+        fetch('/loadPlugin', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `pluginName=${pluginName}`
+        }).then(response => response.text())
+            .then(symbol => {
+                if (!symbol.startsWith('error:')) {
+                    addOperatorButton(symbol);
+                } else {
+                    alert(symbol.substring(6)); // Affiche l'erreur si le plugin échoue
+                }
+            });
+    }
+
+    // Fonction pour ajouter un bouton d'opérateur dynamique
+    function addOperatorButton(symbol) {
+        const button = document.createElement('button');
+        button.textContent = symbol;
+        button.className = 'bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-lg text-xl';
+        button.onclick = () => appendToDisplay(symbol);
+        document.getElementById('operatorButtons').appendChild(button);
+    }
+</script>
+</body>
+</html>
