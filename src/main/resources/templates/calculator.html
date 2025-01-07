@@ -1,128 +1,152 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <title>Calculator</title>
-   <!-- CSS de Bootstrap (pour le style) -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEJ03v3L10fF4B6W+QpKkXkFQgsaLe6tLQ3fi3Ck5J5RfJfzr8dL1XwS+N49p" crossorigin="anonymous">
-
-<!-- JavaScript de Bootstrap (pour les composants interactifs) -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pzjw8f+ua7Kw1TIq0t2p8FvR/s6g1Yc3dUNW4xh/2VQk4z5Gk0VRyHYzS+f+8U5k" crossorigin="anonymous"></script>
-
-</head>
-<body class="bg-gray-50 text-gray-800">
-    <div class="container-fluid min-vh-100 d-flex justify-content-center align-items-center">
-        <div class="bg-white rounded shadow-lg p-4" style="width: 24rem;">
-            <h1 class="text-center h3 mb-4">Calculatrice LAFRAOUZI mouhssine</h1>
-    
-            <!-- Chargement des plugins -->
-            <div class="mb-4">
-                <label for="pluginSelect" class="form-label">Sélectionner un plugin</label>
-                <select id="pluginSelect" class="form-select">
-                    <option value="" selected disabled>Choisir un plugin...</option>
-                    <option th:each="plugin : ${plugins}" th:value="${plugin}" th:text="${plugin}"></option>
-                </select>
-                <button onclick="loadSelectedPlugin()" class="btn btn-primary mt-3 w-100">
-                    Charger le plugin
-                </button>
-            </div>
-    
-            <!-- Affichage et calculatrice -->
-            <div class="mb-3">
-                <input id="display" readonly class="form-control text-end display-4" placeholder="0">
-            </div>
-    
-            <!-- Boutons numériques -->
-            <div class="row g-2">
-                <button onclick="appendToDisplay('1')" class="btn btn-light btn-lg col">1</button>
-                <button onclick="appendToDisplay('2')" class="btn btn-light btn-lg col">2</button>
-                <button onclick="appendToDisplay('3')" class="btn btn-light btn-lg col">3</button>
-                <button onclick="appendToDisplay('4')" class="btn btn-light btn-lg col">4</button>
-                <button onclick="appendToDisplay('5')" class="btn btn-light btn-lg col">5</button>
-                <button onclick="appendToDisplay('6')" class="btn btn-light btn-lg col">6</button>
-                <button onclick="appendToDisplay('7')" class="btn btn-light btn-lg col">7</button>
-                <button onclick="appendToDisplay('8')" class="btn btn-light btn-lg col">8</button>
-                <button onclick="appendToDisplay('9')" class="btn btn-light btn-lg col">9</button>
-                <!-- 0 et . -->
-                <button onclick="appendToDisplay('0')" class="btn btn-light btn-lg col-6">0</button>
-                <button onclick="appendToDisplay('.')" class="btn btn-light btn-lg col">.</button>
-            </div>
-    
-            <!-- Opérations spéciales -->
-            <div class="row g-2 mt-3">
-                <button onclick="evaluateExpression()" class="btn btn-success btn-lg col">=</button>
-                <button onclick="clearDisplay()" class="btn btn-danger btn-lg col">C</button>
-            </div>
-    
-            <!-- Boutons dynamiques pour les plugins -->
-            <div id="operatorButtons" class="mt-3 row g-2"></div>
-        </div>
-    </div>
-    
-
-<script>
-    // Variable globale pour l'expression
-    let expression = '';
-    const display = document.getElementById('display');
-
-    // Fonction pour ajouter des valeurs à l'affichage
-    function appendToDisplay(value) {
-        expression += value;
-        display.value = expression;
-    }
-
-    // Fonction pour évaluer l'expression
-    function evaluateExpression() {
-        console.log("expression == ", expression);
-        fetch('/evaluate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `expression=${encodeURIComponent(expression)}`
-        }).then(response => response.text())
-            .then(result => {
-                if (!isNaN(result)) {
-                    display.value = result;
-                    expression = result; // Mise à jour de l'expression pour continuer les calculs
-                } else {
-                    alert("Erreur d'évaluation : " + result);
-                }
-            });
-    }
-
-    // Fonction pour réinitialiser l'affichage
-    function clearDisplay() {
-        expression = '';
-        display.value = '';
-    }
-
-    // Fonction pour charger un plugin sélectionné
-    function loadSelectedPlugin() {
-        const pluginName = document.getElementById('pluginSelect').value;
-        if (!pluginName) {
-            alert("Veuillez sélectionner un plugin !");
-            return;
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- JavaScript de Bootstrap (pour les composants interactifs) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
+    <style>
+        .calculator-container {
+            max-width: 400px;
+            background: #f9f9f9;
+            border-radius: 1rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         }
-        fetch('/loadPlugin', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `pluginName=${pluginName}`
-        }).then(response => response.text())
-            .then(symbol => {
-                if (!symbol.startsWith('error:')) {
-                    addOperatorButton(symbol);
-                } else {
-                    alert(symbol.substring(6)); // Affiche l'erreur si le plugin échoue
-                }
-            });
-    }
 
-    // Fonction pour ajouter un bouton d'opérateur dynamique
-    function addOperatorButton(symbol) {
-        const button = document.createElement('button');
-        button.textContent = symbol;
-        button.className = 'bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-lg text-xl';
-        button.onclick = () => appendToDisplay(symbol);
-        document.getElementById('operatorButtons').appendChild(button);
-    }
-</script>
+        .btn-operator {
+            background: #0d6efd;
+            color: white;
+        }
+
+        .btn-operator:hover {
+            background: #084298;
+        }
+
+        #display {
+            font-size: 2rem;
+            font-weight: bold;
+            background-color: #e9ecef;
+        }
+
+        .btn-lg {
+            height: 3.5rem;
+        }
+    </style>
+</head>
+
+<body class="bg-light d-flex justify-content-center align-items-center min-vh-100">
+    <div class="calculator-container p-4">
+        <h1 class="text-center h4 mb-4 text-primary">Calculatrice LAFRAOUZI Mouhssine</h1>
+
+        <!-- Chargement des plugins -->
+        <div class="mb-4">
+            <label for="pluginSelect" class="form-label">Sélectionner un plugin</label>
+            <select id="pluginSelect" class="form-select">
+                <option value="" selected disabled>Choisir un plugin...</option>
+                <option th:each="plugin : ${plugins}" th:value="${plugin}" th:text="${plugin}"></option>
+            </select>
+            <button onclick="loadSelectedPlugin()" class="btn btn-primary mt-3 w-100">
+                Charger le plugin
+            </button>
+        </div>
+
+        <!-- Affichage -->
+        <div class="mb-3">
+            <input id="display" readonly class="form-control text-end" placeholder="0">
+        </div>
+
+        <!-- Boutons numériques -->
+        <div class="row g-2">
+            <div class="col-3"><button onclick="appendToDisplay('1')" class="btn btn-light btn-lg w-100">1</button></div>
+            <div class="col-3"><button onclick="appendToDisplay('2')" class="btn btn-light btn-lg w-100">2</button></div>
+            <div class="col-3"><button onclick="appendToDisplay('3')" class="btn btn-light btn-lg w-100">3</button></div>
+            <div class="col-3"><button onclick="appendToDisplay('4')" class="btn btn-light btn-lg w-100">4</button></div>
+            <div class="col-3"><button onclick="appendToDisplay('5')" class="btn btn-light btn-lg w-100">5</button></div>
+            <div class="col-3"><button onclick="appendToDisplay('6')" class="btn btn-light btn-lg w-100">6</button></div>
+            <div class="col-3"><button onclick="appendToDisplay('7')" class="btn btn-light btn-lg w-100">7</button></div>
+            <div class="col-3"><button onclick="appendToDisplay('8')" class="btn btn-light btn-lg w-100">8</button></div>
+            <div class="col-3"><button onclick="appendToDisplay('9')" class="btn btn-light btn-lg w-100">9</button></div>
+            <div class="col-6"><button onclick="appendToDisplay('0')" class="btn btn-light btn-lg w-100">0</button></div>
+            <div class="col-3"><button onclick="appendToDisplay('.')" class="btn btn-light btn-lg w-100">.</button></div>
+        </div>
+
+        <!-- Opérations spéciales -->
+        <div class="row g-2 mt-3">
+            <div class="col-6"><button onclick="evaluateExpression()" class="btn btn-success btn-lg w-100">=</button></div>
+            <div class="col-6"><button onclick="clearDisplay()" class="btn btn-danger btn-lg w-100">C</button></div>
+        </div>
+
+        <!-- Boutons dynamiques pour les plugins -->
+        <div id="operatorButtons" class="mt-3 row g-2"></div>
+    </div>
+
+
+    <script>
+        // Variable globale pour l'expression
+        let expression = '';
+        const display = document.getElementById('display');
+
+        // Fonction pour ajouter des valeurs à l'affichage
+        function appendToDisplay(value) {
+            expression += value;
+            display.value = expression;
+        }
+
+        // Fonction pour évaluer l'expression
+        function evaluateExpression() {
+            console.log("expression == ", expression);
+            fetch('/evaluate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `expression=${encodeURIComponent(expression)}`
+            }).then(response => response.text())
+                .then(result => {
+                    if (!isNaN(result)) {
+                        display.value = result;
+                        expression = result; // Mise à jour de l'expression pour continuer les calculs
+                    } else {
+                        alert("Erreur d'évaluation : " + result);
+                    }
+                });
+        }
+
+        // Fonction pour réinitialiser l'affichage
+        function clearDisplay() {
+            expression = '';
+            display.value = '';
+        }
+
+        // Fonction pour charger un plugin sélectionné
+        function loadSelectedPlugin() {
+            const pluginName = document.getElementById('pluginSelect').value;
+            if (!pluginName) {
+                alert("Veuillez sélectionner un plugin !");
+                return;
+            }
+            fetch('/loadPlugin', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `pluginName=${pluginName}`
+            }).then(response => response.text())
+                .then(symbol => {
+                    if (!symbol.startsWith('error:')) {
+                        addOperatorButton(symbol);
+                    } else {
+                        alert(symbol.substring(6)); // Affiche l'erreur si le plugin échoue
+                    }
+                });
+        }
+
+        // Fonction pour ajouter un bouton d'opérateur dynamique
+        function addOperatorButton(symbol) {
+            const button = document.createElement('button');
+            button.textContent = symbol;
+            button.className = 'bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-lg text-xl';
+            button.onclick = () => appendToDisplay(symbol);
+            document.getElementById('operatorButtons').appendChild(button);
+        }
+    </script>
 </body>
+
 </html>

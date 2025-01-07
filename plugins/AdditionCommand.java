@@ -1,5 +1,3 @@
-package lafraouzi.dev.calculator.plugins;
-
 import lafraouzi.dev.calculator.Command;
 
 public class AdditionCommand implements Command {
