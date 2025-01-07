@@ -1,19 +1,24 @@
-package kad.dev.calculator;
+package lafraouzi.dev.calculator;
 
-import org.springframework.stereotype.Component;
-
-import javax.tools.JavaCompiler;
-import javax.tools.ToolProvider;
 import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+
+import javax.tools.JavaCompiler;
+import javax.tools.ToolProvider;
+
+import org.springframework.stereotype.Component;
 
 @Component
 public class PluginLoader {
     private final Map<String, Command> loadedPlugins = new HashMap<>();
-    private final String pluginsDir = "C:\\Users\\Hamza\\Desktop\\Design Patterns\\Command Pattern\\Calculator\\src\\main\\java\\kad\\dev\\calculator\\plugins";
+    private final String pluginsDir = "C:\\Users\\mouhssine\\Desktop\\calculator-command-pattern-with-pattern\\src\\main\\java\\lafraouzi\\dev\\calculator\\plugins";
 
     public List<String> listAvailablePlugins() {
         File folder = new File(pluginsDir);
@@ -48,9 +53,10 @@ public class PluginLoader {
             }
 
             URLClassLoader classLoader = new URLClassLoader(new URL[]{new File("compiled/").toURI().toURL()});
-            String className = "kad.dev.calculator.plugins." + pluginName + "Command";
+            String className = "lafraouzi.dev.calculator.plugins." + pluginName + "Command";
             Class<?> pluginClass = classLoader.loadClass(className);
 
+            //Le cast permet de dire explicitement à Java que l'objet qui vient d'être instancié doit être de type Command ou une de ses sous-classes.
             Command command = (Command) pluginClass.getDeclaredConstructor().newInstance();
             loadedPlugins.put(pluginName.toLowerCase(), command);
             classLoader.close();

@@ -1,4 +1,4 @@
-package kad.dev.calculator;
+package lafraouzi.dev.calculator;
 
 
 public interface Command {

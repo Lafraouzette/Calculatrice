@@ -8,7 +8,7 @@
         <version>3.4.1</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>kad.dev</groupId>
+    <groupId>lafraouzi.dev</groupId>
     <artifactId>Calculator</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>Calculator</name>

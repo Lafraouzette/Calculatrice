@@ -1,14 +1,15 @@
-package kad.dev.calculator.web;
+package lafraouzi.dev.calculator.web;
 
-import kad.dev.calculator.Command;
-import kad.dev.calculator.ExpressionEvaluator;
-import kad.dev.calculator.PluginLoader;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import lafraouzi.dev.calculator.Command;
+import lafraouzi.dev.calculator.ExpressionEvaluator;
+import lafraouzi.dev.calculator.PluginLoader;
 
 @Controller
 public class CalculatorController {

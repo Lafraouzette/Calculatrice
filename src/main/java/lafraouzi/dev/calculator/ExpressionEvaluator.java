@@ -1,4 +1,4 @@
-package kad.dev.calculator;
+package lafraouzi.dev.calculator;
 
 import java.util.Map;
 import java.util.Stack;

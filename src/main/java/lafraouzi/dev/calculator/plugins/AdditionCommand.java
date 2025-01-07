@@ -1,25 +1,25 @@
-package kad.dev.calculator.plugins;
+package lafraouzi.dev.calculator.plugins;
 
-import kad.dev.calculator.Command;
+import lafraouzi.dev.calculator.Command;
 
-public class MultiplicationCommand implements Command {
+public class AdditionCommand implements Command {
     @Override
     public double execute(double a, double b) {
-        return a * b;
+        return a + b;
     }
 
     @Override
     public String getSymbol() {
-        return "x";
+        return "+";
     }
 
     @Override
     public String getName() {
-        return "multiplication";
+        return "addition";
     }
 
     @Override
     public int getPriority() {
-        return 2;
+        return 1;
     }
 }

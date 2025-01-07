@@ -1,6 +1,6 @@
-package kad.dev.calculator.plugins;
+package lafraouzi.dev.calculator.plugins;
 
-import kad.dev.calculator.Command;
+import lafraouzi.dev.calculator.Command;
 
 public class DivisionCommand implements Command {
     @Override
